@@ -1,0 +1,31 @@
+---
+# defaults file for zabbix_server_config
+# Zabbix actions
+# zabbix_action_name:
+# zabbix_action_status:
+# zabbix_action_evert_soruce:
+# zabbix_action_esc_period:
+# ## Zabbix actions - conditions
+# zabbix_action_conditions_formulaid:
+# zabbix_action_conditions_operator:
+# zabbix_action_conditions_formulaid:
+# zabbix_action_conditions_value:
+# ## Zabbix actions - operations
+# zabbix_action_operations_command:
+# zabbix_action_operations_command_type:
+# zabbix_action_operations_execute_on:
+# zabbix_action_operations_media_type:
+# zabbix_action_operations_send_to_groups:
+# zabbix_action_operations_send_to_users:
+# zabbix_action_operations_type:
+
+zabbix_server_config_become_on_localhost: False
+
+zabbix_server_config_url: "https://{{ invertory_hostname }}"
+zabbix_server_config_api_user: Admin
+zabbix_server_config_api_pass: zabbix
+zabbix_server_config_validate_certs: False
+
+zabbix_server_custom_templates_src: zabbix_custom_templates
+zabbix_server_custom_templates_xml:
+  - "{{ zabbix_server_custom_templates_src }}/zbx_exports_templates.xml" 

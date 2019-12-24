@@ -1,0 +1,39 @@
+---
+# tasks file for zabbix_server_config
+#### trabajo sobre las acctions de zabbix
+# - name: "Configure zabbix acctions"
+#   zabbix_action:
+#     server_url: "{{ zabbix_url }}"
+#     http_login_user: "{{ zabbix_api_http_user | default(omit) }}"
+#     http_login_password: "{{ zabbix_api_http_password | default(omit) }}"
+#     login_user: "{{ zabbix_api_user }}"
+#     login_password: "{{ zabbix_api_pass }}"
+#     validate_certs: "{{ zabbix_validate_certs | default(omit) }}"
+#     state: present
+#     ### Lista de variables generales a definir
+#     name: "{{ zabbix_action_name }}"
+#     status: "{{ zabbix_action_status }}" # variable a definir en el host
+#     event_soruce: "{{ zabbix_action_evert_soruce }}" # variable a definir en el host
+#     esc_period: "{{ zabbix_action_esc_period }}" # variable a definir en el host
+#     ## Las condiciones de la acción:
+#     conditions:
+#       - formulaid: "{{ zabbix_action_conditions_formulaid }}" 
+#       - operator: "{{ zabbix_action_conditions_operator }}"
+#       - type: "{{ zabbix_action_conditions_formulaid }}"
+#       - value: "{{ zabbix_action_conditions_value }}"
+#     ## las acciones propiamente dichas 
+#     operations:
+#       - command: "{{ zabbix_action_operations_command }}"
+#       - command_type: "{{ zabbix_action_operations_command_type }}"
+#       - execute_on: "{{ zabbix_action_operations_execute_on }}"
+#       - media_type: "{{ zabbix_action_operations_media_type }}"
+#       - send_to_groups: "{{ zabbix_action_operations_send_to_groups }}"
+#       - send_to_users: "{{ zabbix_action_operations_send_to_users }}"
+#       - type: "{{ zabbix_action_operations_type }}"
+
+
+- name: "Add zabbix custom tempĺates"
+  include: "zabbix_templates.yml"
+  when: ansible_version.full is version('2.9.0','>=')
+
+  
