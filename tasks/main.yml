@@ -1,7 +1,25 @@
 ---
 
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
 - name: "Add zabbix custom tempĺates"
   include: "zabbix_templates.yml"
   when: ansible_version.full is version('2.9.0','>=')
 
-  
+- name: Remove default vhost in sites-enabled.
+  file:
+    path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
+    state: absent
+  when: zabbix_remove_apache_default_vhost
+
+- name: Remove vhost created by apache role.
+  file:
+    path: "{{ apache_conf_path }}/sites-enabled/vhosts.conf"
+    state: absent
+  when: zabbix_remove_apache_default_vhost
+
+- name: restart apache
+  service:
+    name: "{{ apache_service }}"
+    state: restarted

@@ -1,0 +1,4 @@
+---
+apache_service: httpd
+apache_conf_path: /etc/httpd/conf.d
+apache_default_vhost_filename: "000-default.conf"

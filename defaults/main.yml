@@ -29,3 +29,5 @@ zabbix_server_config_validate_certs: False
 zabbix_server_custom_templates_src: zabbix_custom_templates
 zabbix_server_custom_templates_xml:
   - "{{ zabbix_server_custom_templates_src }}/zbx_exports_templates.xml" 
+
+zabbix_remove_apache_default_vhost: no
