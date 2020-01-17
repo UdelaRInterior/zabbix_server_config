@@ -11,6 +11,10 @@
   include: "zabbix_actions.yml"
   when: ansible_version.full is version('2.8.0','>=')
 
+- name: "Manage zabbix Media Types"
+  include: "zabbix_mediatypes.yml"
+  when: ansible_version.full is version('2.9.0','>=')
+
 - name: Remove default vhost in sites-enabled.
   file:
     path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"

@@ -1,0 +1,26 @@
+---
+
+- name: "Installing the zabbix-api package on localhost"
+  pip:
+    name: zabbix-api
+    state: present
+  register: zabbix_api_package_installed
+  until: zabbix_api_package_installed is succeeded
+  delegate_to: localhost
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+
+- name: 'Create a script mediatype'
+  zabbix_mediatype:
+    name: "Telegram"
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_api_user }}"
+    login_password: "{{ zabbix_server_config_api_pass }}"    
+    type: 'script'
+    script_name: 'telegram.py'
+    state: present
+    script_params:
+      - '{ALERT.SENDTO}'
+      - '{ALERT.SUBJECT}'
+      - '{ALERT.MESSAGE}'
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
