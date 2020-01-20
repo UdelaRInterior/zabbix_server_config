@@ -3,6 +3,10 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
+- name: "Add zabbix api"
+  include: "zabbix_install_api.yml"
+  when: zabbix_server_install_api
+
 - name: "Add zabbix custom tempĺates"
   include: "zabbix_templates.yml"
   when: ansible_version.full is version('2.9.0','>=')
