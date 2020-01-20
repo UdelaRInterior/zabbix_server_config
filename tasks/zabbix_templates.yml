@@ -1,14 +1,5 @@
 ---
 
-- name: "Installing the zabbix-api package on localhost"
-  pip:
-    name: zabbix-api
-    state: present
-  register: zabbix_api_package_installed
-  until: zabbix_api_package_installed is succeeded
-  delegate_to: localhost
-  become: "{{ zabbix_server_config_become_on_localhost }}"
-
 - name: "Create zabbix template" # This module requires at least Ansible 2.9
   zabbix_template:
     server_url: "{{ zabbix_server_config_url }}"
