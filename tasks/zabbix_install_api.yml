@@ -8,3 +8,12 @@
   until: zabbix_api_package_installed is succeeded
   delegate_to: localhost
   become: "{{ zabbix_server_config_become_on_localhost }}"
+
+- name: TEMPLATE | Telegram
+  template:
+    src: telegram.py.j2
+    dest: '/usr/lib/zabbix/alertscripts/telegram.py'
+    owner: zabbix
+    group: zabbix
+    mode: 0750
+  when: zabbix_server_config_telegram_enable

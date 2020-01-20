@@ -2,7 +2,7 @@
 
 - name: 'Create a script mediatype'
   zabbix_mediatype:
-    name: 'telegram'
+    name: 'Telegram'
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
     login_password: "{{ zabbix_server_config_api_pass }}"    
