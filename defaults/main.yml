@@ -33,7 +33,9 @@ zabbix_server_custom_templates_xml:
 
 zabbix_remove_apache_default_vhost: no
 
+zabbix_server_config_alertscript_path: "/usr/lib/zabbix/alertscripts/"
 zabbix_server_config_telegram_enable: False
 zabbix_server_config_telegram_username: 'usertelegram'
+zabbix_server_config_telegram_usergroup: "ReadOnly-telegram"
 zabbix_server_config_telegram_password: ''
 zabbix_server_config_telegram_bot_token: ''
