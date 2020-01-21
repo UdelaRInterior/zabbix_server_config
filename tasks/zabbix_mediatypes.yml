@@ -1,26 +1,30 @@
 ---
 
+- name: Installing telegram notification script
+  template:
+    src: telegram.sh.j2
+    dest: "{{ zabbix_server_config_alertscript_path }}/telegram.sh"
+    owner: zabbix
+    group: zabbix
+    mode: 0750
+  when: zabbix_server_config_telegram_enable
+
 - name: 'Create ReadOnly usergroup for telegram-bot'
   shell: |
     #!/bin/bash
 
-    # Primero nos logueamos y sacamos el token
+    # login and get sesion token
     ZABBIX_API_URL="https://ticholo.interior.edu.uy/api_jsonrpc.php"
     ZABBIX_API_USER="{{ zabbix_server_config_api_user }}"
     ZABBIX_API_PASSWORD="{{ zabbix_server_config_api_pass }}"
-    ZABBIX_USERGROUP="SoloLectura-telegram"
-    ZABBIX_TELEGRAM_USER="{{ zabbix_server_config_telegram_username }}"
-    # aún me falta obtener el id del usuario para el bot de telegram
-
+    ZABBIX_USERGROUP="{{ zabbix_server_config_telegram_usergroup }}"
+    
     # Login into zabbix
     LOGIN="{\"jsonrpc\":\"2.0\",\"method\":\"user.login\",\"params\":{\"user\":\"${ZABBIX_API_USER}\",\"password\":\"${ZABBIX_API_PASSWORD}\"},\"auth\":null,\"id\": 1}"
     TOKEN=`curl -i -X POST -H 'Content-type:application/json' -d "${LOGIN}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result'`
 
-    # Get userid
-    JSON_GET_USERID="{\"jsonrpc\": \"2.0\",\"method\": \"user.get\",\"params\": {\"filter\": {\"alias\": \"${ZABBIX_TELEGRAM_USER}\"},\"output\": \"userid\"},\"auth\": \"${TOKEN}\",\"id\": 1}"
-    ZABIX_TELEGRAM_USERID=`curl -i -X PST -H 'Content-type:application/json' -d "${JSON_GET_USERID}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result[0].userid'`
     # Create usergroup
-    JSON_CREATEGROUP="{\"jsonrpc\": \"2.0\",\"method\": \"usergroup.create\",\"params\": {\"name\": \"${ZABBIX_USERGROUP}\",\"rights\": [{\"permission\": 2,\"id\": \"2\"},{\"permission\": 2,\"id\": \"7\"}],\"userids\": \"${ZABIX_TELEGRAM_USERID}\"},\"auth\": \"${TOKEN}\",\"id\": 1}"
+    JSON_CREATEGROUP="{\"jsonrpc\": \"2.0\",\"method\": \"usergroup.create\",\"params\": {\"name\": \"${ZABBIX_USERGROUP}\",\"rights\": [{\"permission\": 2,\"id\": \"2\"},{\"permission\": 2,\"id\": \"7\"}]},\"auth\": \"${TOKEN}\",\"id\": 1}"
     curl -i -X POST -H 'Content-type:application/json' -d "${JSON_CREATEGROUP}" ${ZABBIX_API_URL}
 
     # Logout
@@ -30,6 +34,21 @@
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
 
+- name: "Create telegram user for notifications"
+  zabbix_user:
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_api_user }}"
+    login_password: "{{ zabbix_server_config_api_pass }}"
+    alias: "{{ zabbix_server_config_telegram_username }}"
+    name: "Telegram"
+    surname: "Bot"
+    passwd: "{{ zabbix_server_config_telegram_password }}"
+    type: Zabbix user
+    usrgrps:
+          - "{{ zabbix_server_config_telegram_usergroup }}"
+    state: present
+  delegate_to: localhost
+  become: "{{ zabbix_user_api_become_on_localhost }}"
 
 - name: 'Create a script mediatype'
   zabbix_mediatype:
@@ -40,7 +59,7 @@
     type: 'script'
     status: enabled
     state: present
-    script_name: 'telegram.py'
+    script_name: 'telegram.sh'
     script_params:
       - '{ALERT.SENDTO}'
       - '{ALERT.SUBJECT}'

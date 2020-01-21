@@ -8,9 +8,6 @@
   when: zabbix_server_install_api
 
 - name: "Add zabbix custom tempĺates"
-  include: "install_zabbix-api.yml"
-
-- name: "Add zabbix custom tempĺates"
   include: "zabbix_templates.yml"
   when: ansible_version.full is version('2.9.0','>=')
 
