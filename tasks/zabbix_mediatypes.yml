@@ -1,5 +1,36 @@
 ---
 
+- name: 'Create ReadOnly usergroup for telegram-bot'
+  shell: |
+    #!/bin/bash
+
+    # Primero nos logueamos y sacamos el token
+    ZABBIX_API_URL="https://ticholo.interior.edu.uy/api_jsonrpc.php"
+    ZABBIX_API_USER="{{ zabbix_server_config_api_user }}"
+    ZABBIX_API_PASSWORD="{{ zabbix_server_config_api_pass }}"
+    ZABBIX_USERGROUP="SoloLectura-telegram"
+    ZABBIX_TELEGRAM_USER="{{ zabbix_server_config_telegram_username }}"
+    # aún me falta obtener el id del usuario para el bot de telegram
+
+    # Login into zabbix
+    LOGIN="{\"jsonrpc\":\"2.0\",\"method\":\"user.login\",\"params\":{\"user\":\"${ZABBIX_API_USER}\",\"password\":\"${ZABBIX_API_PASSWORD}\"},\"auth\":null,\"id\": 1}"
+    TOKEN=`curl -i -X POST -H 'Content-type:application/json' -d "${LOGIN}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result'`
+
+    # Get userid
+    JSON_GET_USERID="{\"jsonrpc\": \"2.0\",\"method\": \"user.get\",\"params\": {\"filter\": {\"alias\": \"${ZABBIX_TELEGRAM_USER}\"},\"output\": \"userid\"},\"auth\": \"${TOKEN}\",\"id\": 1}"
+    ZABIX_TELEGRAM_USERID=`curl -i -X PST -H 'Content-type:application/json' -d "${JSON_GET_USERID}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result[0].userid'`
+    # Create usergroup
+    JSON_CREATEGROUP="{\"jsonrpc\": \"2.0\",\"method\": \"usergroup.create\",\"params\": {\"name\": \"${ZABBIX_USERGROUP}\",\"rights\": [{\"permission\": 2,\"id\": \"2\"},{\"permission\": 2,\"id\": \"7\"}],\"userids\": \"${ZABIX_TELEGRAM_USERID}\"},\"auth\": \"${TOKEN}\",\"id\": 1}"
+    curl -i -X POST -H 'Content-type:application/json' -d "${JSON_CREATEGROUP}" ${ZABBIX_API_URL}
+
+    # Logout
+    JSON_LOGOUT="{\"jsonrpc\": \"2.0\",\"method\": \"user.logout\",\"params\": [],\"id\": 1,\"auth\": \"${TOKEN}\"}"
+    curl -i -X POST -H 'Content-type:application/json' -d "${JSON_LOGOUT}" ${ZABBIX_API_URL}
+    exit 0
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
+
+
 - name: 'Create a script mediatype'
   zabbix_mediatype:
     name: 'Telegram'
