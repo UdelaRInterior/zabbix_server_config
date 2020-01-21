@@ -11,13 +11,13 @@
   include: "zabbix_templates.yml"
   when: ansible_version.full is version('2.9.0','>=')
 
-- name: "Manage zabbix actions"
-  include: "zabbix_actions.yml"
-  when: ansible_version.full is version('2.8.0','>=')
-
 - name: "Manage zabbix Media Types"
   include: "zabbix_mediatypes.yml"
   when: ansible_version.full is version('2.9.0','>=')
+
+- name: "Manage zabbix actions"
+  include: "zabbix_actions.yml"
+  when: ansible_version.full is version('2.8.0','>=')
 
 - name: Remove default vhost in sites-enabled.
   file:
