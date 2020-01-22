@@ -1,6 +1,6 @@
 ---
 
-- name: Installing telegram notification script
+- name: Mediatypes | Installing telegram notification script
   template:
     src: telegram.sh.j2
     dest: "{{ zabbix_server_config_alertscript_path }}/telegram.sh"
@@ -9,14 +9,14 @@
     mode: 0750
   when: zabbix_server_config_telegram_enable
 
-- name: Install jq to manage JSON
+- name: Dependencies | Install jq to manage JSON
   apt:
     name: jq
     state: present
   become: true
   delegate_to: localhost
 
-- name: 'Create ReadOnly usergroup for telegram-bot'
+- name: 'Mediatypes | Create ReadOnly usergroup for telegram-bot'
   shell: |
     #!/bin/bash
 
@@ -41,7 +41,7 @@
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
 
-- name: "Create telegram user for notifications"
+- name: "Mediatypes | Create telegram user for notifications"
   zabbix_user:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
@@ -57,7 +57,7 @@
   delegate_to: localhost
   become: "{{ zabbix_user_api_become_on_localhost }}"
 
-- name: 'Create a script mediatype'
+- name: 'Mediatypes | Create a script mediatype'
   zabbix_mediatype:
     name: 'Telegram'
     server_url: "{{ zabbix_server_config_url }}"

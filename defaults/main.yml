@@ -39,3 +39,23 @@ zabbix_server_config_telegram_username: 'usertelegram'
 zabbix_server_config_telegram_usergroup: "ReadOnly-telegram"
 zabbix_server_config_telegram_password: ''
 zabbix_server_config_telegram_bot_token: ''
+zabbix_server_config_actions_default_subject: "Problem: {EVENT.NAME}"
+zabbix_server_config_actions_default_message: "Problem started at {EVENT.TIME} on {EVENT.DATE} \n
+                                              Problem name: {EVENT.NAME} \n
+                                              Host: {HOST.NAME} \n
+                                              Severity: {EVENT.SEVERITY} \n
+                                              \n
+                                              Original problem ID: {EVENT.ID} \n
+                                              {TRIGGER.URL} \n
+                                              \n
+                                              Item Graphic: [{ITEM.ID1}]"
+zabbix_server_config_actions_recovery_default_subject: "Resolved: {EVENT.NAME}"
+zabbix_server_config_actions_recovery_default_message: "Problem has been resolved at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE} \n
+                                                        Problem name: {EVENT.NAME} \n
+                                                        Host: {HOST.NAME} \n
+                                                        Severity: {TRIGGER.SEVERITY} \n
+                                                        \n
+                                                        Original problem ID: {EVENT.ID} \n
+                                                        {TRIGGER.URL}\n
+                                                        \n
+                                                        Item Graphic: [{ITEM.ID1}]"
