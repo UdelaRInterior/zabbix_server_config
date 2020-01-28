@@ -1,6 +1,6 @@
 ---
 
-- name: "Templates | Create zabbix template" # This module requires at least Ansible 2.9
+- name: Templates | Create zabbix template # This module requires at least Ansible 2.9
   zabbix_template:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"

@@ -1,2 +1,7 @@
 ---
 # handlers file for zabbix_server_config
+
+- name: restart apache
+  service:
+    name: "{{ apache_service }}"
+    state: restarted

@@ -3,35 +3,32 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
-- name: "Add zabbix api"
-  include: "zabbix_install_api.yml"
-  when: zabbix_server_install_api
+- name: Ensure zabbix-api package is installed
+  include_tasks: zabbix_install_api.yml
+  when: zabbix_server_install_api | bool
 
-- name: "Add zabbix custom tempĺates"
-  include: "zabbix_templates.yml"
+- name: Add zabbix custom tempĺates
+  include_tasks: zabbix_templates.yml
   when: ansible_version.full is version('2.9.0','>=')
 
-- name: "Manage zabbix Media Types"
-  include: "zabbix_mediatypes.yml"
+- name: Manage zabbix Media Types
+  include_tasks: zabbix_mediatypes.yml
   when: ansible_version.full is version('2.9.0','>=')
 
-- name: "Manage zabbix actions"
-  include: "zabbix_actions.yml"
+- name: Manage zabbix actions
+  include_tasks: zabbix_actions.yml
   when: ansible_version.full is version('2.8.0','>=')
 
 - name: Remove default vhost in sites-enabled.
   file:
     path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
     state: absent
-  when: zabbix_remove_apache_default_vhost
+  notify: restart apache
+  when: zabbix_remove_apache_default_vhost | bool
 
 - name: Remove vhost created by apache role.
   file:
     path: "{{ apache_conf_path }}/sites-enabled/vhosts.conf"
     state: absent
-  when: zabbix_remove_apache_default_vhost
-
-- name: restart apache
-  service:
-    name: "{{ apache_service }}"
-    state: restarted
+  notify: restart apache
+  when: zabbix_remove_apache_default_vhost | bool

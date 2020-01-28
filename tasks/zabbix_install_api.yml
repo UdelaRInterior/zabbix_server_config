@@ -1,6 +1,6 @@
 ---
 
-- name: "Dependencies | Installing the zabbix-api package on localhost"
+- name: Dependencies | Installing the zabbix-api package on localhost
   pip:
     name: zabbix-api
     state: present

@@ -25,7 +25,7 @@
     ZABBIX_API_USER="{{ zabbix_server_config_api_user }}"
     ZABBIX_API_PASSWORD="{{ zabbix_server_config_api_pass }}"
     ZABBIX_USERGROUP="{{ zabbix_server_config_telegram_usergroup }}"
-    
+
     # Login into zabbix
     LOGIN="{\"jsonrpc\":\"2.0\",\"method\":\"user.login\",\"params\":{\"user\":\"${ZABBIX_API_USER}\",\"password\":\"${ZABBIX_API_PASSWORD}\"},\"auth\":null,\"id\": 1}"
     TOKEN=`curl -i -X POST -H 'Content-type:application/json' -d "${LOGIN}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result'`
@@ -41,7 +41,7 @@
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
 
-- name: "Mediatypes | Create telegram user for notifications"
+- name: Mediatypes | Create telegram user for notifications
   zabbix_user:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
@@ -57,12 +57,12 @@
   delegate_to: localhost
   become: "{{ zabbix_user_api_become_on_localhost }}"
 
-- name: 'Mediatypes | Create a script mediatype'
+- name: Mediatypes | Create a script mediatype
   zabbix_mediatype:
     name: 'Telegram'
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
-    login_password: "{{ zabbix_server_config_api_pass }}"    
+    login_password: "{{ zabbix_server_config_api_pass }}"
     type: 'script'
     status: enabled
     state: present
