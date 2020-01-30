@@ -1,27 +1,29 @@
 ---
 
-- name: Mediatypes | Installing telegram notification script
+- name: Mediatypes | Setting mediatype notification script
   template:
-    src: telegram.sh.j2
-    dest: "{{ zabbix_server_config_alertscript_path }}/telegram.sh"
+    src: "{{ item.script_src }}"
+    dest: "{{ zabbix_server_config_alertscript_path }}/{{ item.script_name }}"
     owner: zabbix
     group: zabbix
     mode: 0750
-  when: zabbix_server_config_telegram_enable
+  with_items: "{{ zabbix_server_config_custom_mediatypes }}"
 
-- name: Dependencies | Install jq to manage JSON
-  apt:
-    name: jq
-    state: present
-  become: true
+# - name: Dependencies | Install jq to manage JSON
+#   apt:
+#     name: jq
+#     state: present
+#   become: true
+#   delegate_to: localhost
+
+- name: Mediatypes | Create ReadOnly usergroup for telegram-bot
+  become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
-
-- name: 'Mediatypes | Create ReadOnly usergroup for telegram-bot'
   shell: |
     #!/bin/bash
 
     # login and get sesion token
-    ZABBIX_API_URL="https://ticholo.interior.edu.uy/api_jsonrpc.php"
+    ZABBIX_API_URL="{{ zabbix_server_config_url }}/api_jsonrpc.php"
     ZABBIX_API_USER="{{ zabbix_server_config_api_user }}"
     ZABBIX_API_PASSWORD="{{ zabbix_server_config_api_pass }}"
     ZABBIX_USERGROUP="{{ zabbix_server_config_telegram_usergroup }}"
@@ -38,38 +40,35 @@
     JSON_LOGOUT="{\"jsonrpc\": \"2.0\",\"method\": \"user.logout\",\"params\": [],\"id\": 1,\"auth\": \"${TOKEN}\"}"
     curl -i -X POST -H 'Content-type:application/json' -d "${JSON_LOGOUT}" ${ZABBIX_API_URL}
     exit 0
+
+
+# - name: Mediatypes | Create telegram user for notifications
+#   zabbix_user:
+#     server_url: "{{ zabbix_server_config_url }}"
+#     login_user: "{{ zabbix_server_config_api_user }}"
+#     login_password: "{{ zabbix_server_config_api_pass }}"
+#     alias: "{{ zabbix_server_config_telegram_username }}"
+#     name: "Telegram"
+#     surname: "Bot"
+#     passwd: "{{ zabbix_server_config_telegram_password }}"
+#     type: Zabbix user
+#     usrgrps:
+#           - "{{ zabbix_server_config_telegram_usergroup }}"
+#     state: present
+#   delegate_to: localhost
+#   become: "{{ zabbix_user_api_become_on_localhost }}"
+
+- name: Mediatypes | Manage Zabbix server mediatypes
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
-
-- name: Mediatypes | Create telegram user for notifications
-  zabbix_user:
-    server_url: "{{ zabbix_server_config_url }}"
-    login_user: "{{ zabbix_server_config_api_user }}"
-    login_password: "{{ zabbix_server_config_api_pass }}"
-    alias: "{{ zabbix_server_config_telegram_username }}"
-    name: "Telegram"
-    surname: "Bot"
-    passwd: "{{ zabbix_server_config_telegram_password }}"
-    type: Zabbix user
-    usrgrps:
-          - "{{ zabbix_server_config_telegram_usergroup }}"
-    state: present
-  delegate_to: localhost
-  become: "{{ zabbix_user_api_become_on_localhost }}"
-
-- name: Mediatypes | Create a script mediatype
   zabbix_mediatype:
-    name: 'Telegram'
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
     login_password: "{{ zabbix_server_config_api_pass }}"
-    type: 'script'
-    status: enabled
-    state: present
-    script_name: 'telegram.sh'
-    script_params:
-      - '{ALERT.SENDTO}'
-      - '{ALERT.SUBJECT}'
-      - '{ALERT.MESSAGE}'
-  become: "{{ zabbix_server_config_become_on_localhost }}"
-  delegate_to: localhost
+    name: "{{ item.name }}"
+    type: "{{ item.type }}"
+    status: "{{ item.status }}"
+    script_name: "{{ item.script_name }}"
+    script_params: "{{ item.script_params }}"
+    state: "{{ item.state }}"
+  with_items: "{{ zabbix_server_config_custom_mediatypes }}"

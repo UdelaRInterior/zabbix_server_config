@@ -5,7 +5,7 @@
 
 - name: Ensure zabbix-api package is installed
   include_tasks: zabbix_install_api.yml
-  when: zabbix_server_install_api | bool
+  when: zabbix_server_install_zabbix_api_pkg | bool
 
 - name: Add zabbix custom tempĺates
   include_tasks: zabbix_templates.yml
@@ -24,11 +24,11 @@
     path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
     state: absent
   notify: restart apache
-  when: zabbix_remove_apache_default_vhost | bool
+  when: zabbix_server_config_remove_apache_default_vhost | bool
 
 - name: Remove vhost created by apache role.
   file:
     path: "{{ apache_conf_path }}/sites-enabled/vhosts.conf"
     state: absent
   notify: restart apache
-  when: zabbix_remove_apache_default_vhost | bool
+  when: zabbix_server_config_remove_apache_default_vhost | bool

@@ -1,32 +1,22 @@
 ---
 
 - name: Actions | Send notifications via Telegram on Average High and Disaster
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
   zabbix_action:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
     login_password: "{{ zabbix_server_config_api_pass }}"
-    name: "Send alerts via Telegram"
-    event_source: 'trigger'
-    state: present
-    status: enabled
-    esc_period: 60
-    default_subject: "{{ zabbix_server_config_actions_default_subject }}"
-    default_message: "{{ zabbix_server_config_actions_default_message }}"
-    recovery_default_subject: "{{ zabbix_server_config_actions_recovery_default_subject }}"
-    recovery_default_message: "{{ zabbix_server_config_actions_recovery_default_message }}"
-    conditions:
-      - type: 'trigger_severity'
-        operator: '>='
-        value: 'Average'
-    operations:
-      - type: send_message
-        media_type: 'Telegram'
-        send_to_users:
-          - "{{ zabbix_server_config_telegram_username }}"
-    recovery_operations:
-      - type: send_message
-        media_type: 'Telegram'
-        send_to_users:
-          - "{{ zabbix_server_config_telegram_username }}"
-  become: "{{ zabbix_server_config_become_on_localhost }}"
-  delegate_to: localhost
+    name: "{{ item.name }}"
+    event_source: "{{ item.event_source }}"
+    state: "{{ item.state }}"
+    status: "{{ item.status }}"
+    esc_period: "{{ item.esc_period }}"
+    default_subject: "{{ item.default_subject }}"
+    default_message: "{{ item.default_message }}"
+    recovery_default_subject: "{{ item.recovery_default_subject }}"
+    recovery_default_message: "{{ item.recovery_default_message }}"
+    conditions: "{{ item.conditions }}"
+    operations: "{{ item.operations }}"
+    recovery_operations: "{{ item.recovery_operations }}"
+  with_items: "{{ zabbix_server_config_custom_actions }}"

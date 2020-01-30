@@ -1,6 +1,8 @@
 ---
 
 - name: Templates | Create zabbix template # This module requires at least Ansible 2.9
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
   zabbix_template:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_api_user }}"
@@ -8,6 +10,4 @@
     validate_certs: "{{ zabbix_server_config_validate_certs | default(omit) }}"
     template_xml: "{{ item }}"
     state: present
-  become: "{{ zabbix_server_config_become_on_localhost }}"
-  delegate_to: localhost
   with_file: "{{ zabbix_server_config_custom_templates_xml }}"
