@@ -1,0 +1,58 @@
+---
+
+- name: Users | Try to  disable default Zabbix Super Admin (If another one was given)
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
+  ignore_errors: true
+  zabbix_user:
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_custom_superadmin_user }}"
+    login_password: "{{ zabbix_server_config_custom_superadmin_pass }}"
+    alias: "{{ zabbix_server_config_default_superadmin_user }}"
+    passwd: "{{ zabbix_server_config_default_superadmin_pass }}"
+    type: Zabbix super admin
+    usrgrps:
+      - "Zabbix administrators"
+      - "Disabled"
+  when:
+    - zabbix_server_config_disable_default_superadmin_user | bool
+    - zabbix_server_config_custom_superadmin_user is defined
+    - zabbix_server_config_custom_superadmin_pass is defined
+  register: disable_default_superadmin
+
+- name: Users | Create custom Zabbix users
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
+  zabbix_user:
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_default_superadmin_user if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_user }}"
+    login_password:  "{{ zabbix_server_config_default_superadmin_pass if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_pass }}"
+    name: "{{ item.name | default(omit) }}"
+    surname: "{{ item.surname | default(omit) }}"
+    alias: "{{ item.alias }}"
+    passwd: "{{ item.passwd }}"
+    usrgrps: "{{ item.usrgrps }}"
+    type: "{{ item.type | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    override_passwd: "{{ item.override_passwd | default(omit) }}"
+    lang: "{{ item.lang | default(omit) }}"
+    theme: "{{ item.theme | default(omit) }}"
+  with_items: "{{ zabbix_server_config_custom_users }}"
+
+- name: Users | Try disable default Zabbix Super Admin (After create custom users)
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
+  ignore_errors: true
+  zabbix_user:
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_custom_superadmin_user }}"
+    login_password: "{{ zabbix_server_config_custom_superadmin_pass }}"
+    alias: "{{ zabbix_server_config_default_superadmin_user }}"
+    passwd: "{{ zabbix_server_config_default_superadmin_pass }}"
+    type: Zabbix super admin
+    usrgrps:
+      - "Zabbix administrators"
+      - "Disabled"
+  when:
+    - zabbix_server_config_disable_default_superadmin_user | bool
+    - disable_default_superadmin.failed is defined and disable_default_superadmin.failed

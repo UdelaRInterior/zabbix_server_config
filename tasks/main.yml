@@ -7,6 +7,10 @@
   include_tasks: zabbix_install_api.yml
   when: zabbix_server_install_zabbix_api_pkg | bool
 
+- name: Manage zabbix users
+  include_tasks: zabbix_users.yml
+  # when: ansible_version.full is version('2.10.0','>=') <-- Coming soon
+
 - name: Add zabbix custom tempĺates
   include_tasks: zabbix_templates.yml
   when: ansible_version.full is version('2.9.0','>=')

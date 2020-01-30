@@ -7,9 +7,40 @@ zabbix_server_config_remove_apache_default_vhost: no
 ### API Login
 zabbix_server_install_zabbix_api_pkg: true
 zabbix_server_config_url: "https://{{ invertory_hostname }}"
-zabbix_server_config_api_user: Admin
-zabbix_server_config_api_pass: zabbix
 zabbix_server_config_validate_certs: false
+
+# Zabbix Super Admin default credentials
+zabbix_server_config_default_superadmin_user: Admin
+zabbix_server_config_default_superadmin_pass: zabbix
+
+# If you wish to disable the default 'Zabbix Super Admin', you must
+# give the credentials of another user with super admin privileges
+zabbix_server_config_disable_default_superadmin_user: true
+zabbix_server_config_custom_superadmin_user: super_user
+zabbix_server_config_custom_superadmin_pass: strong-password
+
+### Maybe can remove them
+zabbix_server_config_api_user: "{{ zabbix_server_config_custom_superadmin_user }}"
+zabbix_server_config_api_pass: "{{ zabbix_server_config_custom_superadmin_pass }}"
+
+## Users
+zabbix_server_config_custom_users:
+  - name: My User name              # Optional
+    surname: My User surname        # Optional
+    alias: "{{ zabbix_server_config_custom_superadmin_user }}"
+    passwd: "{{ zabbix_server_config_custom_superadmin_pass }}"
+    usrgrps:
+      - Zabbix administrators
+    type: Zabbix super admin        # Optional. Choices: 'Zabbix user' - 'Zabbix admin' - 'Zabbix super admin'
+    state: present                  # Optional
+    override_passwd: false          # Optional
+    lang: en_GB                     # Optional
+    theme: default                  # Optional. Choices: 'default' - 'blue-theme' - 'dark-theme'
+
+  - alias: api_user
+    passwd: strong-password
+    usrgrps:
+      - Guests
 
 
 ### Templates
@@ -35,8 +66,6 @@ zabbix_server_config_custom_mediatypes:
 
 
 ### Actions
-################################################
-
 zabbix_server_config_actions_default_subject: "Problem: {EVENT.NAME}"
 zabbix_server_config_actions_default_message: "Problem started at {EVENT.TIME} on {EVENT.DATE} \n
                                               Problem name: {EVENT.NAME} \n
@@ -91,8 +120,4 @@ zabbix_server_config_telegram_password: ''
 zabbix_server_config_telegram_usergroup: "ReadOnly-telegram"
 zabbix_server_config_telegram_bot_token: ''
 ##
-
-
-
-
 
