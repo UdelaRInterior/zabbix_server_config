@@ -3,7 +3,7 @@
 - name: Users | Try to  disable default Zabbix Super Admin (If another one was given)
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
-  ignore_errors: true
+  ignore_errors: true # Fail if custom superadmin doesn't exists yet
   zabbix_user:
     server_url: "{{ zabbix_server_config_url }}"
     login_user: "{{ zabbix_server_config_custom_superadmin_user }}"
@@ -20,13 +20,35 @@
     - zabbix_server_config_custom_superadmin_pass is defined
   register: disable_default_superadmin
 
-- name: Users | Create custom Zabbix users
+
+- name: Choose the correct user and password for the API
+  set_fact:
+    zabbix_server_config_api_user: "{{ zabbix_server_config_default_superadmin_user if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_user }}"
+    zabbix_server_config_api_pass:  "{{ zabbix_server_config_default_superadmin_pass if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_pass }}"
+
+- name: User | Managing custom zabbix user groups # User groups first because users can depend of them
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
+  # zabbix_user_group module proposed here: https://github.com/ansible/ansible/pull/58051
+  # https://github.com/ovh/ansible/blob/new_zabbix_user_group_module/lib/ansible/modules/monitoring/zabbix/zabbix_user_group.py
+  zabbix_user_group:
+    server_url: "{{ zabbix_server_config_url }}"
+    login_user: "{{ zabbix_server_config_api_user }}"
+    login_password: "{{ zabbix_server_config_api_pass }}"
+    name: "{{ item.name }}"
+    rights: "{{ item.rights }}"
+    users: "{{ item.users | default(omit) }}"
+    state: "{{ item.state }}"
+  with_items: "{{ zabbix_server_config_custom_users_groups }}"
+
+- name: Users | Managing custom zabbix users
+  become: "{{ zabbix_server_config_become_on_localhost }}"
+  delegate_to: localhost
+  # zabbix_user module proposed here: https://github.com/ansible/ansible/pull/56815
   zabbix_user:
     server_url: "{{ zabbix_server_config_url }}"
-    login_user: "{{ zabbix_server_config_default_superadmin_user if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_user }}"
-    login_password:  "{{ zabbix_server_config_default_superadmin_pass if((disable_default_superadmin.failed is defined and disable_default_superadmin.failed) or zabbix_server_config_custom_superadmin_pass is not defined) else zabbix_server_config_custom_superadmin_pass }}"
+    login_user: "{{ zabbix_server_config_api_user }}"
+    login_password: "{{ zabbix_server_config_api_pass }}"
     name: "{{ item.name | default(omit) }}"
     surname: "{{ item.surname | default(omit) }}"
     alias: "{{ item.alias }}"
@@ -56,3 +78,10 @@
   when:
     - zabbix_server_config_disable_default_superadmin_user | bool
     - disable_default_superadmin.failed is defined and disable_default_superadmin.failed
+  register: resulting_superadmin
+
+- name: Review correct user and password for the API
+  set_fact:
+    zabbix_server_config_api_user: "{{ zabbix_server_config_custom_superadmin_user }}"
+    zabbix_server_config_api_pass:  "{{ zabbix_server_config_custom_superadmin_pass }}"
+  when: resulting_superadmin.changed | bool

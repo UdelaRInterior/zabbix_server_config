@@ -19,9 +19,16 @@ zabbix_server_config_disable_default_superadmin_user: true
 zabbix_server_config_custom_superadmin_user: super_user
 zabbix_server_config_custom_superadmin_pass: strong-password
 
-### Maybe can remove them
-zabbix_server_config_api_user: "{{ zabbix_server_config_custom_superadmin_user }}"
-zabbix_server_config_api_pass: "{{ zabbix_server_config_custom_superadmin_pass }}"
+## Users groups
+zabbix_server_config_custom_users_groups:
+  - name: Test group
+    state: present
+    rights:
+      - host_group: Linux servers
+        permission: RO      # Choices: denied - RO - RW
+    # users:                # Optional
+    #     - user1
+    #     - user2
 
 ## Users
 zabbix_server_config_custom_users:
