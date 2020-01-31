@@ -9,56 +9,7 @@
     mode: 0750
   with_items: "{{ zabbix_server_config_custom_mediatypes }}"
 
-# - name: Dependencies | Install jq to manage JSON
-#   apt:
-#     name: jq
-#     state: present
-#   become: true
-#   delegate_to: localhost
-
-- name: Mediatypes | Create ReadOnly usergroup for telegram-bot
-  become: "{{ zabbix_server_config_become_on_localhost }}"
-  delegate_to: localhost
-  shell: |
-    #!/bin/bash
-
-    # login and get sesion token
-    ZABBIX_API_URL="{{ zabbix_server_config_url }}/api_jsonrpc.php"
-    ZABBIX_API_USER="{{ zabbix_server_config_api_user }}"
-    ZABBIX_API_PASSWORD="{{ zabbix_server_config_api_pass }}"
-    ZABBIX_USERGROUP="{{ zabbix_server_config_telegram_usergroup }}"
-
-    # Login into zabbix
-    LOGIN="{\"jsonrpc\":\"2.0\",\"method\":\"user.login\",\"params\":{\"user\":\"${ZABBIX_API_USER}\",\"password\":\"${ZABBIX_API_PASSWORD}\"},\"auth\":null,\"id\": 1}"
-    TOKEN=`curl -i -X POST -H 'Content-type:application/json' -d "${LOGIN}" ${ZABBIX_API_URL} | grep jsonrpc | jq -r '.result'`
-
-    # Create usergroup
-    JSON_CREATEGROUP="{\"jsonrpc\": \"2.0\",\"method\": \"usergroup.create\",\"params\": {\"name\": \"${ZABBIX_USERGROUP}\",\"rights\": [{\"permission\": 2,\"id\": \"2\"},{\"permission\": 2,\"id\": \"7\"}]},\"auth\": \"${TOKEN}\",\"id\": 1}"
-    curl -i -X POST -H 'Content-type:application/json' -d "${JSON_CREATEGROUP}" ${ZABBIX_API_URL}
-
-    # Logout
-    JSON_LOGOUT="{\"jsonrpc\": \"2.0\",\"method\": \"user.logout\",\"params\": [],\"id\": 1,\"auth\": \"${TOKEN}\"}"
-    curl -i -X POST -H 'Content-type:application/json' -d "${JSON_LOGOUT}" ${ZABBIX_API_URL}
-    exit 0
-
-
-# - name: Mediatypes | Create telegram user for notifications
-#   zabbix_user:
-#     server_url: "{{ zabbix_server_config_url }}"
-#     login_user: "{{ zabbix_server_config_api_user }}"
-#     login_password: "{{ zabbix_server_config_api_pass }}"
-#     alias: "{{ zabbix_server_config_telegram_username }}"
-#     name: "Telegram"
-#     surname: "Bot"
-#     passwd: "{{ zabbix_server_config_telegram_password }}"
-#     type: Zabbix user
-#     usrgrps:
-#           - "{{ zabbix_server_config_telegram_usergroup }}"
-#     state: present
-#   delegate_to: localhost
-#   become: "{{ zabbix_user_api_become_on_localhost }}"
-
-- name: Mediatypes | Manage Zabbix server mediatypes
+- name: Mediatypes | Managing Zabbix custom mediatypes
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
   zabbix_mediatype:

@@ -1,6 +1,6 @@
 ---
 
-- name: Actions | Send notifications via Telegram on Average High and Disaster
+- name: Actions | Managing custom zabbix actions
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
   zabbix_action:

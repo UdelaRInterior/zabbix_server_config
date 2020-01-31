@@ -1,6 +1,6 @@
 ---
 
-- name: Templates | Create zabbix template # This module requires at least Ansible 2.9
+- name: Templates | Managing custom zabbix templates # This module requires at least Ansible 2.9
   become: "{{ zabbix_server_config_become_on_localhost }}"
   delegate_to: localhost
   zabbix_template:

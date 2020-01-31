@@ -1,0 +1,13 @@
+---
+
+- name: Remove default vhost in sites-enabled.
+  file:
+    path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
+    state: absent
+  notify: restart apache
+
+- name: Remove vhost created by Apache role.
+  file:
+    path: "{{ apache_conf_path }}/sites-enabled/vhosts.conf"
+    state: absent
+  notify: restart apache

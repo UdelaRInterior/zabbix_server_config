@@ -7,6 +7,11 @@
   include_tasks: zabbix_install_api.yml
   when: zabbix_server_install_zabbix_api_pkg | bool
 
+- name: Ensure availability of Zabbix web API reloading Apache
+  service:
+    name: "{{ apache_service }}"
+    state: restarted
+
 - name: Manage zabbix users
   include_tasks: zabbix_users.yml
   # when: ansible_version.full is version('2.10.0','>=') <-- Coming soon
@@ -15,7 +20,7 @@
   include_tasks: zabbix_templates.yml
   when: ansible_version.full is version('2.9.0','>=')
 
-- name: Manage zabbix Media Types
+- name: Manage zabbix media types
   include_tasks: zabbix_mediatypes.yml
   when: ansible_version.full is version('2.9.0','>=')
 
@@ -23,16 +28,6 @@
   include_tasks: zabbix_actions.yml
   when: ansible_version.full is version('2.8.0','>=')
 
-- name: Remove default vhost in sites-enabled.
-  file:
-    path: "{{ apache_conf_path }}/sites-enabled/{{ apache_default_vhost_filename }}"
-    state: absent
-  notify: restart apache
-  when: zabbix_server_config_remove_apache_default_vhost | bool
-
-- name: Remove vhost created by apache role.
-  file:
-    path: "{{ apache_conf_path }}/sites-enabled/vhosts.conf"
-    state: absent
-  notify: restart apache
+- name: Remove Apache vhosts
+  include_tasks: zabbix_apache.yml
   when: zabbix_server_config_remove_apache_default_vhost | bool
