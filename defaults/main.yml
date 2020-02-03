@@ -72,6 +72,14 @@ zabbix_server_config_custom_mediatypes:
     state: present
 
 
+## For included Telegram mediatype example. Vars for telegram.sh.j2 template:
+zabbix_server_config_telegram_username: 'telegram-bot'
+zabbix_server_config_telegram_password: 'your-super-secret-pass'
+zabbix_server_config_telegram_usergroup: 'ReadOnly-telegram'
+zabbix_server_config_telegram_bot_token: 'your-token'
+##
+
+
 ### Actions
 zabbix_server_config_actions_default_subject: "Problem: {EVENT.NAME}"
 zabbix_server_config_actions_default_message: "Problem started at {EVENT.TIME} on {EVENT.DATE} \n
@@ -119,12 +127,4 @@ zabbix_server_config_custom_actions:
         media_type: Telegram
         send_to_users:
           - telegram-bot
-
-
-## For included example: mediatype script telegram.sh.j2
-zabbix_server_config_telegram_username: 'telegram-bot'
-zabbix_server_config_telegram_password: ''
-zabbix_server_config_telegram_usergroup: "ReadOnly-telegram"
-zabbix_server_config_telegram_bot_token: ''
-##
 
