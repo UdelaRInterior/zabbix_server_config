@@ -127,4 +127,3 @@ zabbix_server_config_custom_actions:
         media_type: Telegram
         send_to_users:
           - telegram-bot
-
